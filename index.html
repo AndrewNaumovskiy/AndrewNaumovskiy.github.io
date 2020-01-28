@@ -1,34 +1,60 @@
-<!DOCTYPE html>
-<html lang="ua" >
+<!doctype html>
+<style>
+    textarea { vertical-align: bottom; }
+    #output { overflow: auto; }
+    #output > p { overflow-wrap: break-word; }
+    #output span { color: blue; }
+    #output span.error { color: red; }
+</style>
+<h2>WebSocket Test</h2>
+<textarea cols=60 rows=6></textarea>
+<button>send</button>
+<div id=output></div>
+<script>
+    // http://www.websocket.org/echo.html
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="description" content="Ваня возьми трубкуб это Андрей. Гагарин полетел в космос чтобы Иссус страдал за наши грехи. вот так вот">
-  <title>index</title>
-  
-  
-  
-      <link rel="stylesheet" href="css/style.css">
+    var button = document.querySelector("button"),
+        output = document.querySelector("#output"),
+        textarea = document.querySelector("textarea"),
+        // wsUri = "ws://echo.websocket.org/",
+        wsUri = "ws://127.0.0.1/",
+        websocket = new WebSocket(wsUri);
 
-  
-</head>
+    button.addEventListener("click", onClickButton);
 
-<body>
-  <h1>Ни начто не похожий текст</h1>
-<div id="spin"><a href="krya.html" target="_blank">SPINING</a></div>
-  <!-- particles.js container --> 
-    <div id="particles-js"></div>
-    <!-- stats - count particles <div class="count-particles"> <span class="js-count-particles">--</span> particles </div>-->
-    <!-- particles.js lib - https://github.com/VincentGarreau/particles.js -->
-    <script src="js/code.js"></script>
-    <!-- stats.js lib  <script src="http://threejs.org/examples/js/libs/stats.min.js"></script>-->
-    
-    
-    <script  src="js/index.js"></script>
+    websocket.onopen = function (e) {
+        writeToScreen("CONNECTED");
+        doSend("WebSocket rocks");
+    };
 
+    websocket.onclose = function (e) {
+        writeToScreen("DISCONNECTED");
+    };
 
+    websocket.onmessage = function (e) {
+        writeToScreen("<span>RESPONSE: " + e.data + "</span>");
+        websocket.close();
+    };
 
+    websocket.onerror = function (e) {
+        writeToScreen("<span class=error>ERROR:</span> " + e.data);
+    };
 
-</body>
+    function doSend(message) {
+        writeToScreen("SENT: " + message);
+        websocket.send(message);
+    }
 
-</html>
+    function writeToScreen(message) {
+        output.insertAdjacentHTML("afterbegin", "<p>" + message + "</p>");
+    }
+
+    function onClickButton() {
+        var text = textarea.value;
+
+        text && doSend(text);
+        textarea.value = "";
+        textarea.focus();
+    }
+</script>
+</script>
